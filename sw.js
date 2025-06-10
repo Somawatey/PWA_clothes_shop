@@ -1,11 +1,9 @@
 const CACHE_NAME = 'stylehub-v2';
-const OFFLINE_URL = '/offline.html';
 const urlsToCache = [
   '/',
   '/index.html',
   '/manifest.json',
-  '/icons/pic.jpg',
-  OFFLINE_URL
+  '/icons/pic.jpg'
 ];
 
 self.addEventListener('install', event => {
@@ -33,7 +31,6 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-  // Skip non-GET and non-HTTP(S) requests
   if (event.request.method !== 'GET' || !event.request.url.startsWith('http')) {
     return;
   }
@@ -41,20 +38,9 @@ self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request)
       .then(cachedResponse => {
-        // Return cached response immediately
         if (cachedResponse) {
-          // Update cache in background
-          fetch(event.request)
-            .then(networkResponse => {
-              if (networkResponse.ok) {
-                caches.open(CACHE_NAME)
-                  .then(cache => cache.put(event.request, networkResponse));
-              }
-            })
-            .catch(() => console.log('Background fetch failed, using cache'));
           return cachedResponse;
         }
-
         return fetch(event.request)
           .then(networkResponse => {
             if (!networkResponse.ok) {
