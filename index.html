@@ -478,6 +478,11 @@
         }
         
 
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
 
 
         /* Animations */
@@ -508,6 +513,10 @@
 </head>
 
 <body>
+        <div id="loading-screen" class="loading-screen">
+            <div class="loader"></div>
+        </div>
+
     <header>
         <nav class="container">
             <div class="logo">StyleHub</div>
@@ -525,6 +534,7 @@
     </header>
 
     <main class="container">
+
         <section class="hero">
             <h1>Welcome to StyleHub</h1>
             <p>Discover the latest fashion trends and express your unique style</p>
