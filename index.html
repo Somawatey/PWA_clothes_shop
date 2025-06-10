@@ -9,6 +9,8 @@
     <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/jpeg" href="icons/pic.jpg">
     <link rel="apple-touch-icon" href="icons/pic.jpg">
+    <link rel="preload" href="/manifest.json" as="fetch" crossorigin>
+    <link rel="preload" href="/icons/pic.jpg" as="image">
     <title>StyleHub - Modern Clothing Store</title>
     <style>
         * {
@@ -849,7 +851,19 @@
         document.addEventListener('DOMContentLoaded', init);
     </script>
     
-
+   <script>
+        // Add loading screen handler here
+        window.addEventListener('load', () => {
+            const loadingScreen = document.getElementById('loading-screen');
+            setTimeout(() => {
+                loadingScreen.style.opacity = '0';
+                setTimeout(() => {
+                    loadingScreen.style.display = 'none';
+                }, 300);
+            }, 1000);
+        });
+    </script>
+    
    <script>
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js', { scope: '/' })

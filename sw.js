@@ -33,15 +33,17 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-  if (event.request.method !== 'GET' || !event.request.url.startsWith(self.location.origin)) {
+  // Skip non-GET and non-HTTP(S) requests
+  if (event.request.method !== 'GET' || !event.request.url.startsWith('http')) {
     return;
   }
 
   event.respondWith(
     caches.match(event.request)
       .then(cachedResponse => {
-        // Return cached response and update cache in background
+        // Return cached response immediately
         if (cachedResponse) {
+          // Update cache in background
           fetch(event.request)
             .then(networkResponse => {
               if (networkResponse.ok) {
@@ -53,7 +55,6 @@ self.addEventListener('fetch', event => {
           return cachedResponse;
         }
 
-        // If not in cache, fetch from network
         return fetch(event.request)
           .then(networkResponse => {
             if (!networkResponse.ok) {
@@ -64,12 +65,6 @@ self.addEventListener('fetch', event => {
               .then(cache => cache.put(event.request, responseToCache));
             return networkResponse;
           });
-      })
-      .catch(() => {
-        if (event.request.mode === 'navigate') {
-          return caches.match(OFFLINE_URL);
-        }
-        console.error('Fetch handler failed');
       })
   );
 });
