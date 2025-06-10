@@ -3,18 +3,19 @@ const urlsToCache = [
   '/',
   '/index.html',
   '/manifest.json',
-  '/icons/pic.jpg',
-  // Add other assets here like CSS/JS if needed
+  '/icons/pic.jpg'
 ];
 
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(urlsToCache))
   );
 });
 
 self.addEventListener('fetch', event => {
   event.respondWith(
-    caches.match(event.request).then(res => res || fetch(event.request))
+    caches.match(event.request)
+      .then(response => response || fetch(event.request))
   );
 });
