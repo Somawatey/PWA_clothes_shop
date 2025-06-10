@@ -1,19 +1,17 @@
 const CACHE_NAME = 'stylehub-v1';
-const OFFLINE_URL = '/offline.html';
+const ASSETS_TO_CACHE = [
+    '/',
+    '/index.html',
+    '/manifest.json',
+    '/icons/pic.jpg'
+];
 
 self.addEventListener('install', event => {
     event.waitUntil(
         caches.open(CACHE_NAME)
             .then(cache => {
-                return cache.addAll([
-                    '/',
-                    '/index.html',
-                    '/manifest.json',
-                    '/icons/pic.png',
-                  
-                    // Add your CSS and JS files
-                    // Add your icons
-                ]);
+                console.log('Opened cache');
+                return cache.addAll(ASSETS_TO_CACHE);
             })
     );
 });
@@ -22,9 +20,12 @@ self.addEventListener('fetch', event => {
     event.respondWith(
         caches.match(event.request)
             .then(response => {
-                return response || fetch(event.request).catch(() => {
-                    return caches.match(OFFLINE_URL);
-                });
+                // Return cached version or fetch new
+                return response || fetch(event.request);
+            })
+            .catch(() => {
+                // Return cached version if fetch fails
+                return caches.match('/');
             })
     );
 });
