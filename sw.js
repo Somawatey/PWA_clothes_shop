@@ -1,17 +1,15 @@
-const CACHE_NAME = 'stylehub-v2'; // Changed version to force update
-const OFFLINE_URL = '/offline.html'; // Add an offline fallback page
+const CACHE_NAME = 'stylehub-v2';
+const OFFLINE_URL = '/offline.html';
 const urlsToCache = [
   '/',
   '/index.html',
   '/manifest.json',
   '/icons/pic.jpg',
-  OFFLINE_URL // Cache offline fallback
+  OFFLINE_URL
 ];
 
 self.addEventListener('install', event => {
-  // Skip waiting to activate the new SW immediately
   self.skipWaiting();
-  
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => cache.addAll(urlsToCache))
@@ -19,14 +17,14 @@ self.addEventListener('install', event => {
   );
 });
 
-// Clean up old caches during activation
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
-        cacheNames.map(cache => {
-          if (cache !== CACHE_NAME) {
-            return caches.delete(cache);
+        cacheNames.map(cacheName => {
+          if (cacheName !== CACHE_NAME) {
+            console.log('Deleting old cache:', cacheName);
+            return caches.delete(cacheName);
           }
         })
       );
@@ -35,7 +33,6 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-  // Skip non-GET requests and external URLs
   if (event.request.method !== 'GET' || !event.request.url.startsWith(self.location.origin)) {
     return;
   }
@@ -43,28 +40,36 @@ self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request)
       .then(cachedResponse => {
-        // Always fetch from network in background to update cache
-        const fetchPromise = fetch(event.request)
+        // Return cached response and update cache in background
+        if (cachedResponse) {
+          fetch(event.request)
+            .then(networkResponse => {
+              if (networkResponse.ok) {
+                caches.open(CACHE_NAME)
+                  .then(cache => cache.put(event.request, networkResponse));
+              }
+            })
+            .catch(() => console.log('Background fetch failed, using cache'));
+          return cachedResponse;
+        }
+
+        // If not in cache, fetch from network
+        return fetch(event.request)
           .then(networkResponse => {
-            // Clone the response to store in cache
+            if (!networkResponse.ok) {
+              throw new Error('Network response was not ok');
+            }
             const responseToCache = networkResponse.clone();
             caches.open(CACHE_NAME)
               .then(cache => cache.put(event.request, responseToCache));
             return networkResponse;
-          })
-          .catch(err => {
-            console.error('Fetch failed; returning cached version', err);
-            return cachedResponse;
           });
-
-        // Return cached version immediately if available, then update
-        return cachedResponse || fetchPromise;
       })
       .catch(() => {
-        // If both cache and network fail, show offline page
         if (event.request.mode === 'navigate') {
           return caches.match(OFFLINE_URL);
         }
+        console.error('Fetch handler failed');
       })
   );
 });
