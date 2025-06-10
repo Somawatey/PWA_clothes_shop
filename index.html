@@ -848,37 +848,16 @@
         // Initialize the app when page loads
         document.addEventListener('DOMContentLoaded', init);
     </script>
+    
 
-      <script>
-        // Initialize the app when page loads
-        document.addEventListener('DOMContentLoaded', init);
-
-        // Add loading screen handler
-        window.addEventListener('load', () => {
-            const loadingScreen = document.getElementById('loading-screen');
-            // Hide loading screen after content loads
-            setTimeout(() => {
-                loadingScreen.style.opacity = '0';
-                setTimeout(() => {
-                    loadingScreen.style.display = 'none';
-                }, 300);
-            }, 1000);
-        });
-    </script>
-
-    <script>
+     <script>
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(registration => {
-                        console.log('ServiceWorker registration successful:', registration);
-                    })
-                    .catch(error => {
-                        console.log('ServiceWorker registration failed:', error);
-                    });
-            });
+            navigator.serviceWorker.register('/service-worker.js')
+            .then(reg => console.log('✅ Service Worker Registered', reg))
+            .catch(err => console.error('❌ Service Worker Error:', err));
         }
     </script>
+
 </body>
 
 </html>

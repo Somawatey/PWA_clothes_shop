@@ -1,31 +1,20 @@
-const CACHE_NAME = 'stylehub-v1';
-const ASSETS_TO_CACHE = [
-    '/',
-    '/index.html',
-    '/manifest.json',
-    '/icons/pic.jpg'
+const CACHE_NAME = 'pwa-cache-v1';
+const urlsToCache = [
+  '/',
+  '/index.html',
+  '/manifest.json',
+  '/icons/pic.jpg',
+  // Add other assets here like CSS/JS if needed
 ];
 
 self.addEventListener('install', event => {
-    event.waitUntil(
-        caches.open(CACHE_NAME)
-            .then(cache => {
-                console.log('Opened cache');
-                return cache.addAll(ASSETS_TO_CACHE);
-            })
-    );
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
+  );
 });
 
 self.addEventListener('fetch', event => {
-    event.respondWith(
-        caches.match(event.request)
-            .then(response => {
-                // Return cached version or fetch new
-                return response || fetch(event.request);
-            })
-            .catch(() => {
-                // Return cached version if fetch fails
-                return caches.match('/');
-            })
-    );
+  event.respondWith(
+    caches.match(event.request).then(res => res || fetch(event.request))
+  );
 });
