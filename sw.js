@@ -9,7 +9,7 @@ self.addEventListener('install', event => {
                     '/',
                     '/index.html',
                     '/manifest.json',
-                    '/offline.html',
+                  
                     // Add your CSS and JS files
                     // Add your icons
                 ]);
